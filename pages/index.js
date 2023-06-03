@@ -1,23 +1,11 @@
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { Button, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { getContrastRatio } from '@mui/system';
-
-const GradientBackground = styled('div')({
-  background: 'linear-gradient(#e0e0e0, #333333)',
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
-const Header = styled(Typography)({
-  color: '#ffffff',
-  marginBottom: '16px',
-  fontFamily: 'Inter',
-  fontSize: '24px',
-});
+import GradientBackground from '../components/GradientBackground';
+import Header from '../components/Header';
 
 const calculateComplementaryColor = (color) => {
   const contrast = getContrastRatio(color, '#ffffff');
@@ -35,13 +23,28 @@ const ComplementaryButton = styled(Button)(({ theme }) => ({
 
 export default function Home() {
   const { user, error, isLoading } = useUser();
-  console.log(user);
+  const router = useRouter();
+
+
+  const handleLogin = () => {
+    if (!user) {
+      router.push('/api/auth/login');
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      router.push('/home');
+    }
+  }, [user, router]);
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <GradientBackground>
       <Header variant="h1">Your Financial Future Awaits You</Header>
-      <ComplementaryButton variant="contained" color="primary">
-        Login
+      <ComplementaryButton variant="contained" color="primary" onClick={handleLogin}>
+        {user ? user.name : 'Login'}
       </ComplementaryButton>
     </GradientBackground>
   );
